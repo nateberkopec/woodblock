@@ -37,7 +37,11 @@ func loadHistory() (history, error) {
 	if err != nil {
 		return h, err
 	}
-	return h, json.Unmarshal(data, &h)
+	if err := json.Unmarshal(data, &h); err != nil {
+		return h, err
+	}
+	h.syncToScreen()
+	return h, nil
 }
 
 func (h history) save() error {
@@ -50,6 +54,16 @@ func (h history) save() error {
 		return err
 	}
 	return os.WriteFile(path, append(data, '\n'), 0o644)
+}
+
+func (h *history) syncToScreen() {
+	id := onScreenID()
+	for i, w := range h.Wallpapers {
+		if w.ID == id {
+			h.Current = i
+			return
+		}
+	}
 }
 
 func (h history) current() (wallpaper, bool) {

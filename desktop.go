@@ -30,11 +30,22 @@ func apply(w wallpaper) error {
 			return err
 		}
 	}
+	if err := setEverySpace(path); err == nil {
+		return nil
+	}
 	script := `tell application "System Events" to tell every desktop to set picture to ` + strconv.Quote(path)
 	if output, err := exec.Command("osascript", "-e", script).CombinedOutput(); err != nil {
 		return fmt.Errorf("osascript: %w: %s", err, strings.TrimSpace(string(output)))
 	}
 	return nil
+}
+
+func onScreenID() string {
+	output, err := exec.Command("osascript", "-e", `tell application "System Events" to get picture of desktop 1`).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSuffix(filepath.Base(strings.TrimSpace(string(output))), ".jpg")
 }
 
 func pruneImages(keep []string) error {
