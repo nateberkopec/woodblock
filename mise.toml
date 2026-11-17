@@ -1,0 +1,9 @@
+[tools]
+go = "1.27.3"
+goreleaser = "latest"
+
+[tasks.build]
+run = "go build -o woodblock ."
+
+[tasks.lint]
+run = ["test -z \"$(gofmt -l .)\"", "go vet ./..."]
